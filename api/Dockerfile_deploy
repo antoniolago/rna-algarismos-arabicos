@@ -1,5 +1,5 @@
 # Use the official PyTorch image as the base image
-FROM python:3.12-alpine3.19
+FROM python:3.12.3-alpine3.19
 
 # Set the working directory in the container
 WORKDIR /app

@@ -10,7 +10,6 @@ from PIL import Image, ImageDraw, ImageFont
 import random
 import glob
 
-
 def train_from_image():
     num_trials = 1000  # Número de vezes para testar a imagem
     num_correct = 0  # Número de vezes que a previsão estava correta
