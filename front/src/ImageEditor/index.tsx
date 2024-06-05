@@ -19,18 +19,18 @@ const ImageEditor: React.FC = () => {
     setImage(acceptedFiles[0]);
   }, []);
 
-  const onCropComplete = useCallback(async (croppedArea: any, croppedAreaPixels: any) => {
-    if (image) {
-      const croppedImg = await getCroppedImg(image, croppedAreaPixels);
-      setCroppedImage(croppedImg);
-    }
-  }, [image]);
+  // const onCropComplete = useCallback(async (croppedArea: any, croppedAreaPixels: any) => {
+  //   if (image) {
+  //     const croppedImg = await getCroppedImg(image, croppedAreaPixels);
+  //     setCroppedImage(croppedImg);
+  //   }
+  // }, [image]);
 
   const handleUpload = async () => {
     if (croppedImage) {
       const blob = await fetch(croppedImage).then((res) => res.blob());
-      const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
-      refetch(file as any);
+      // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
+      refetch(blob as any);
     }
   };
 
