@@ -17,9 +17,9 @@ export const useApi = () => {
     if(pathname.includes("localhost")){
       url = 'http://localhost:5000';
     } else if(pathname.includes("-stg")){
-      url = "https://rna-algarismos-stg.lag0.com.br";
+      url = "https://rna-algarismos-stg.lag0.com.br/api";
     } else {
-      url = "https://rna-algarismos.lag0.com.br";
+      url = "https://rna-algarismos-arabicos.lag0.com.br/api";
     }
     return url;
   }
