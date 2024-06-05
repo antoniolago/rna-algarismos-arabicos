@@ -22,7 +22,7 @@ FROM node_cache as build
 WORKDIR /src/app
 COPY --from=node_cache /cache/ .
 # Copy source files, and possibily invalidate so we have to rebuild
-COPY ./rna_algarismos_arabicos ./
+COPY . ./
 # Builda a aplicação para o deploy
 RUN yarn run build
 
