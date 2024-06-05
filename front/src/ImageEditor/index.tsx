@@ -62,16 +62,16 @@ const ImageEditor: React.FC = () => {
           <Slider value={zoom} min={1} max={3} step={0.1} onChange={(e, zoom) => setZoom(zoom as number)} />
         </Box>
       )}
-      {croppedImage && (
+      {/* {croppedImage && (
         <Box marginBottom={2}>
           <img src={croppedImage} alt="Cropped" style={{ maxWidth: '100%' }} />
         </Box>
-      )}
+      )} */}
       <Button variant="contained" color="primary" onClick={handleUpload} disabled={!croppedImage || isLoading}>
         Upload & Predict
       </Button>
       {isLoading && <Typography>Loading...</Typography>}
-      {error && <Typography>Error: {error.message}</Typography>}
+      {error && <Typography>Error: {error?.message}</Typography>}
       {data && <Typography>Prediction: {data.predicted_label}</Typography>}
     </Box>
   );
