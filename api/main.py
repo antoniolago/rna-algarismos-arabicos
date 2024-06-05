@@ -129,8 +129,8 @@ def get_normalized_image():
     return send_file(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
+    app.config["APPLICATION_ROOT"] = "/api"
     app.run(
         host='0.0.0.0', 
-        port=5000, 
-        prefix='/api'
+        port=5000
     )
