@@ -2,8 +2,8 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
 from PIL import Image, ImageOps, ImageFilter
+from torchvision import datasets, transforms
 from flask import Flask, request, jsonify, send_file
 import random
 import glob
@@ -36,7 +36,8 @@ class Net(nn.Module):
         output = self.fc2(x)
         return output
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = Net().to(device)
 optimizer = optim.Adadelta(model.parameters(), lr=1.0)
 criterion = nn.CrossEntropyLoss()
@@ -46,7 +47,24 @@ if os.path.exists('model.pth') and os.path.exists('optimizer.pth'):
     model.load_state_dict(torch.load('model.pth'))
     optimizer.load_state_dict(torch.load('optimizer.pth'))
 else:
-    raise FileNotFoundError("Model and optimizer files not found. Please train the model first.")
+    # Carregando o conjunto de dados MNIST e treina o modelo
+    train_dataset = datasets.MNIST(root='./mnist_data/', train=True, transform=transforms.ToTensor(), download=True)
+    test_dataset = datasets.MNIST(root='./mnist_data/', train=False, transform=transforms.ToTensor())
+
+    train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=128, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=128, shuffle=False)
+    for epoch in range(10):
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(device), target.to(device)  # Movendo os dados e os alvos para a GPU
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
+
+    # Save the model and optimizer
+    torch.save(model.state_dict(), 'model.pth')
+    torch.save(optimizer.state_dict(), 'optimizer.pth')
 
 def normalize_image(image_path):
     image = Image.open(image_path).convert('L')
