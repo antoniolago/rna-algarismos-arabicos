@@ -27,7 +27,7 @@ const useGetPrediction = () => {
 };
 
 const useMutatePredict = (teste: any) => {
-    const { api, getDecodedToken } = useApi()
+    const { api } = useApi()
 
     var mutationOptions: UseMutationOptions = {
         mutationFn: () =>
