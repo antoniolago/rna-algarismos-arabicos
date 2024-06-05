@@ -15,7 +15,7 @@ jobs:
         include:
           - dockerfile: api/Dockerfile_deploy
             image: ghcr.io/antoniolago/rna-algarismos-arabicos-api
-            context: ./front
+            context: ./api
             platform: linux/arm64
           - dockerfile: front/Dockerfile_deploy
             image: ghcr.io/antoniolago/rna-algarismos-arabicos-front
