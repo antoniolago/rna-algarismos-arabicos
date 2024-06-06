@@ -85,7 +85,7 @@ def predict(image):
     _, predicted = torch.max(output.data, 1)
     return predicted.item()
 
-@app.route('/predict', methods=['POST'])
+@app.route('/api/predict', methods=['POST'])
 def predict_image():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
@@ -99,7 +99,7 @@ def predict_image():
         "predicted_label": predicted_label
     })
 
-@app.route('/test_image', methods=['POST'])
+@app.route('/api/test_image', methods=['POST'])
 def test_image():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
@@ -113,7 +113,7 @@ def test_image():
         "predicted_label": predicted_label
     })
 
-@app.route('/normalized_image', methods=['POST'])
+@app.route('/api/normalized_image', methods=['POST'])
 def get_normalized_image():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
