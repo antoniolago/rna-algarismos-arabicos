@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: python main.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api:/app
+  # front:
+  #   build:
+  #     context: ./front
+  #     dockerfile: Dockerfile
+  #   command: yarn dev
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./front:/app
+  #     - /app/node_modules

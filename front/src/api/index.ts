@@ -15,7 +15,7 @@ export const useApi = () => {
     var pathname = window.location.href
     // console.log(CONFIG.GATEWAY_URL)
     if(pathname.includes("localhost")){
-      url = 'http://localhost:5000';
+      url = 'http://localhost:5000/api';
     } else if(pathname.includes("-stg")){
       url = "https://rna-algarismos-stg.lag0.com.br/api";
     } else {

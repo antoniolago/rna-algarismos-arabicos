@@ -10,10 +10,13 @@ const useGetPrediction = () => {
         Error,
         any,
         any> = {
-        queryKey: ["Predicts"],
+        queryKey: ["predicts"],
         queryFn: (image: any) => {
             const formData = new FormData();
             formData.append('image', image);
+            // console.log(image)
+            // console.log(formData)
+
             api.post("predict", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -26,24 +29,24 @@ const useGetPrediction = () => {
     return { ...context, data: context.data?.data };
 };
 
-const useMutatePredict = (teste: any) => {
+const useMutatePredict = () => {
     const { api } = useApi()
 
-    var mutationOptions: UseMutationOptions = {
-        mutationFn: () =>
-            api.post("predict",
-                {
-                    image: teste
-                })
-                .then((_response: any) => {
-                    //   toast.success('Predict.')
-                })
-                .catch((response: AxiosError) => {
-                    toast.error('Predict error.')
-                })
+    var mutationOptions: UseMutationOptions<any, any, any, any> = {
+        mutationFn: (data: any) => {
+            console.log(data)
+            const formData = new FormData();
+            formData.append('image', data.blob);
+            return api.post("predict", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+        }
     };
     return useMutation(mutationOptions)
 }
 export const PredictionService = {
     useGetPrediction,
+    useMutatePredict
 };

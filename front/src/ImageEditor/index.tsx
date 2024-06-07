@@ -13,24 +13,25 @@ const ImageEditor: React.FC = () => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const queryClient = useQueryClient();
-  const { refetch, isLoading, isError, error, data } = PredictionService.useGetPrediction();
+  const { mutate, isError, isPending, error, data } = PredictionService.useMutatePredict();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setImage(acceptedFiles[0]);
   }, []);
 
-  // const onCropComplete = useCallback(async (croppedArea: any, croppedAreaPixels: any) => {
-  //   if (image) {
-  //     const croppedImg = await getCroppedImg(image, croppedAreaPixels);
-  //     setCroppedImage(croppedImg);
-  //   }
-  // }, [image]);
+  const onCropComplete = useCallback(async (croppedArea: any, croppedAreaPixels: any) => {
+    if (image) {
+      const croppedImg = await getCroppedImg(image, croppedAreaPixels);
+      setCroppedImage(croppedImg);
+    }
+  }, [image]);
 
   const handleUpload = async () => {
     if (croppedImage) {
       const blob = await fetch(croppedImage).then((res) => res.blob());
       // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
-      refetch(blob as any);
+      // console.log(blob)
+      mutate({ blob });
     }
   };
 
@@ -67,10 +68,13 @@ const ImageEditor: React.FC = () => {
           <img src={croppedImage} alt="Cropped" style={{ maxWidth: '100%' }} />
         </Box>
       )} */}
-      <Button variant="contained" color="primary" onClick={handleUpload} disabled={!croppedImage || isLoading}>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={handleUpload} disabled={!croppedImage || isPending}>
         Upload & Predict
       </Button>
-      {isLoading && <Typography>Loading...</Typography>}
+      {isPending && <Typography>Loading...</Typography>}
       {error && <Typography>Error: {error?.message}</Typography>}
       {data && <Typography>Prediction: {data.predicted_label}</Typography>}
     </Box>
