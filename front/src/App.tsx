@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import {
-	experimental_extendTheme as materialExtendTheme,
-	Experimental_CssVarsProvider as MaterialCssVarsProvider,
-	THEME_ID as MATERIAL_THEME_ID,
+  experimental_extendTheme as materialExtendTheme,
+  Experimental_CssVarsProvider as MaterialCssVarsProvider,
+  THEME_ID as MATERIAL_THEME_ID,
 } from '@mui/material/styles';
 import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy/styles';
 import './App.css'
@@ -17,7 +17,7 @@ function App() {
     <>
       <MaterialCssVarsProvider theme={{ [MATERIAL_THEME_ID]: materialTheme }} defaultMode="dark">
         <JoyCssVarsProvider>
-				<CssBaseline enableColorScheme />
+          <CssBaseline enableColorScheme />
           <ImageEditor />
         </JoyCssVarsProvider>
       </MaterialCssVarsProvider>
