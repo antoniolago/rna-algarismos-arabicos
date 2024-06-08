@@ -13,7 +13,7 @@ COPY . /app
 #     python3-setuptools
 
 # Install required Python packages
-RUN pip install flask
+RUN pip install flask flask_cors torch torchvision
 
 # Run the application
 CMD ["python", "./main.py"]
