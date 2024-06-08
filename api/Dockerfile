@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install required Python packages
-RUN pip install --no-cache-dir numpy pillow glob2 torchvision flask
+RUN pip install --no-cache-dir numpy pillow glob2 torchvision flask flask_cors
 
 # Run the application
 CMD ["python", "./main.py"]
