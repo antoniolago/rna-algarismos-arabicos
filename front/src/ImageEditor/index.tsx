@@ -18,7 +18,14 @@ const ImageEditor: React.FC = () => {
   const imgRef = useRef<HTMLImageElement>(null)
   const hiddenAnchorRef = useRef<HTMLAnchorElement>(null)
   const blobUrlRef = useRef('')
-  const [crop, setCrop] = useState<Crop>()
+  const defaultCrop = {
+    unit: '%', // Can be 'px' or '%'
+    x: 25,
+    y: 25,
+    width: 50,
+    height: 50
+  } as Crop
+  const [crop, setCrop] = useState<Crop>(defaultCrop)
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
   const [scale, setScale] = useState(1)
   const [rotate, setRotate] = useState(0)
@@ -163,16 +170,16 @@ const ImageEditor: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4">Image Editor</Typography>
+      <Typography variant="h4">RNA identificação de algarismos arábicos</Typography>
       <br />
       <Dropzone
         onDrop={onDrop}
       // accept="image/*"
       >
         {({ getRootProps, getInputProps }) => (
-          <Box {...getRootProps()} border={1} padding={2} marginBottom={2}>
+          <Box {...getRootProps()} border={1} padding={2} marginBottom={2} sx={{ background: 'aliceblue' }}>
             <input {...getInputProps()} />
-            <Typography>Drag 'n' drop an image here, or click to select one</Typography>
+            <Typography>Arraste uma imagem ou clique aqui.</Typography>
           </Box>
         )}
       </Dropzone>
@@ -182,23 +189,27 @@ const ImageEditor: React.FC = () => {
           <Grid md={4}>
             <Box>
               {!!imgSrc && (
-                <ReactCrop
-                  crop={crop}
-                  onChange={(_, percentCrop) => setCrop(percentCrop)}
-                  onComplete={(c) => setCompletedCrop(c)}
+                <>
+                  <Typography>Clique na imagem e selecione seu recorte</Typography>
+                  <ReactCrop
+                    crop={crop}
+                    onChange={(_, percentCrop) => setCrop(percentCrop)}
+                    onComplete={(c) => setCompletedCrop(c)}
                   // aspect={aspect}
                   // minWidth={400}
                   // minHeight={100}
-                // circularCrop
-                >
-                  <img
-                    ref={imgRef}
-                    alt="Crop me"
-                    src={imgSrc}
-                    style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-                    onLoad={onImageLoad}
-                  />
-                </ReactCrop>
+                  // circularCrop
+                  >
+                    <img
+                      ref={imgRef}
+                      alt="Crop me"
+                      src={imgSrc}
+                      style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+                      onLoad={onImageLoad}
+                    />
+                  </ReactCrop>
+                </>
+
               )}
             </Box>
           </Grid>
@@ -220,7 +231,16 @@ const ImageEditor: React.FC = () => {
               </>
             )}
           </Grid>
-          <Grid md={4}>
+          <Grid md={2}>
+
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleUpload} disabled={!image || isPending}>
+              {'->'}
+            </Button>
+          </Grid>
+          <Grid md={2}>
             {data?.normalized_image && (
               <Box>
                 <img
@@ -228,6 +248,9 @@ const ImageEditor: React.FC = () => {
                   alt="Original"
                   style={{ maxWidth: '100%' }}
                 />
+                {isPending && <Typography>Loading...</Typography>}
+                {error && <Typography>Error: {error?.message}</Typography>}
+                {data && <Typography>Prediction: {data?.predicted_label}</Typography>}
               </Box>
             )}
           </Grid>
@@ -238,15 +261,6 @@ const ImageEditor: React.FC = () => {
           <img src={data?.normalized_image} alt="Cropped" style={{ maxWidth: '100%' }} />
         </Box>
       )} */}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleUpload} disabled={!image || isPending}>
-        Upload & Predict
-      </Button>
-      {isPending && <Typography>Loading...</Typography>}
-      {error && <Typography>Error: {error?.message}</Typography>}
-      {data && <Typography>Prediction: {data?.predicted_label}</Typography>}
     </Box>
   );
 };
