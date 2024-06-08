@@ -9,6 +9,7 @@ import ReactCrop, { centerCrop, convertToPixelCrop, Crop, makeAspectCrop, PixelC
 import 'react-image-crop/dist/ReactCrop.css'
 import { useDebounceEffect } from './useDebounceEffect.ts';
 import { canvasPreview } from './canvasPreview.ts';
+import { Grid } from '@mui/joy';
 
 const ImageEditor: React.FC = () => {
 
@@ -21,7 +22,6 @@ const ImageEditor: React.FC = () => {
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
   const [scale, setScale] = useState(1)
   const [rotate, setRotate] = useState(0)
-  const [aspect, setAspect] = useState<number | undefined>(16 / 9)
   const [image, setImage] = useState<File | null>(null);
   const [normalizedImageUrl, setNormalizedImageUrl] = useState<string | null>(null);
   // const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -61,10 +61,10 @@ const ImageEditor: React.FC = () => {
   }
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    if (aspect) {
-      const { width, height } = e.currentTarget
-      setCrop(centerAspectCrop(width, height, aspect))
-    }
+    // if (aspect) {
+    //   const { width, height } = e.currentTarget
+    //   setCrop(centerAspectCrop(width, height, aspect))
+    // }
   }
 
   // async function onDownloadCropClick() {
@@ -140,18 +140,24 @@ const ImageEditor: React.FC = () => {
   )
   const handleUpload = async () => {
     if (image) {
-      // const blob = await fetch(image).then((res) => res.blob());
-      // // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
+      // const croppedImage = await getCroppedImg(image, completedCrop as PixelCrop);
+      var croppedImageCanvas = document.getElementById('cropped-image') as HTMLCanvasElement
+      croppedImageCanvas.toBlob((blob) => {
+        // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
+        // console.log(blob)
+        mutate({ blob });
+      });
+      // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
       // // console.log(blob)
-      mutate({ blob: image });
     }
   };
 
   useEffect(() => {
     if (data?.normalized_image) {
-      const blob = new Blob([data?.normalized_image], { type: 'image/png' });
-      const url = URL.createObjectURL(blob);
-      setNormalizedImageUrl(url);
+      setNormalizedImageUrl(`data:image/png;base64,${data?.normalized_image}`)
+      // const blob = new Blob([data?.normalized_image], { type: 'image/png' });
+      // const url = URL.createObjectURL(blob);
+      // setNormalizedImageUrl(url);
     }
   }, [data]);
 
@@ -172,54 +178,60 @@ const ImageEditor: React.FC = () => {
       </Dropzone>
       <br />
       {image && (
-        <Box position="relative" sx={{ display: 'flex', height: '150px' }} width="100%" height={400} marginBottom={2}>
-          {!!imgSrc && (
-            <ReactCrop
-              crop={crop}
-              onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onComplete={(c) => setCompletedCrop(c)}
-              // aspect={aspect}
-              // minWidth={400}
-              minHeight={100}
-            // circularCrop
-            >
-              <img
-                ref={imgRef}
-                alt="Crop me"
-                src={imgSrc}
-                style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-                onLoad={onImageLoad}
-              />
-            </ReactCrop>
-          )}
-          {!!completedCrop && (
-            <>
-              <div>
-                <canvas
-                  ref={previewCanvasRef}
-                  style={{
-                    border: '1px solid black',
-                    objectFit: 'contain',
-                    width: completedCrop.width,
-                    height: completedCrop.height,
-                  }}
-                />
-              </div>
-            </>
-          )}
-          {data?.normalized_image && (
+        <Grid container spacing={5}>
+          <Grid md={4}>
             <Box>
-              <img
-                src={normalizedImageUrl}
-                alt="Original"
-                style={{ maxWidth: '100%' }}
-              />
+              {!!imgSrc && (
+                <ReactCrop
+                  crop={crop}
+                  onChange={(_, percentCrop) => setCrop(percentCrop)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  // aspect={aspect}
+                  // minWidth={400}
+                  // minHeight={100}
+                // circularCrop
+                >
+                  <img
+                    ref={imgRef}
+                    alt="Crop me"
+                    src={imgSrc}
+                    style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+                    onLoad={onImageLoad}
+                  />
+                </ReactCrop>
+              )}
             </Box>
-          )}
-          {/* <ReactCrop crop={crop} onChange={c => setCrop(c)}>
-            <img src={URL.createObjectURL(data?.image)} />
-          </ReactCrop> */}
-        </Box>
+          </Grid>
+          <Grid md={4}>
+            {!!completedCrop && (
+              <>
+                <div>
+                  <canvas
+                    ref={previewCanvasRef}
+                    id="cropped-image"
+                    style={{
+                      border: '1px solid black',
+                      objectFit: 'contain',
+                      width: completedCrop.width,
+                      height: completedCrop.height,
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </Grid>
+          <Grid md={4}>
+            {data?.normalized_image && (
+              <Box>
+                <img
+                  src={normalizedImageUrl}
+                  alt="Original"
+                  style={{ maxWidth: '100%' }}
+                />
+              </Box>
+            )}
+          </Grid>
+        </Grid>
       )}
       {/* {data?.normalized_image && (
         <Box marginBottom={2}>

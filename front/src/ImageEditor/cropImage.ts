@@ -32,11 +32,11 @@ export const getCroppedImg = async (imageSrc: File, pixelCrop: Area) => {
     pixelCrop.height
   );
 
-  return new Promise<string>((resolve) => {
+  return new Promise<{url, blob}>((resolve) => {
     canvas.toBlob((blob) => {
       if (blob) {
         const url = URL.createObjectURL(blob);
-        resolve(url);
+        resolve({url, blob});
       }
     }, 'image/png');
   });
