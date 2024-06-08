@@ -185,7 +185,7 @@ const ImageEditor: React.FC = () => {
       </Dropzone>
       <br />
       {image && (
-        <Grid container spacing={5}>
+        <Grid container spacing={5} sx={{'.MuiGrid-root': {alignContent: 'center'}}}>
           <Grid md={4}>
             <Box>
               {!!imgSrc && (
