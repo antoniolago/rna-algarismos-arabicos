@@ -44,7 +44,8 @@ const useMutatePredict = () => {
             })
         }
     };
-    return useMutation(mutationOptions)
+    const mutationContext = useMutation(mutationOptions)
+    return { ...mutationContext, data: mutationContext?.data?.data };
 }
 export const PredictionService = {
     useGetPrediction,

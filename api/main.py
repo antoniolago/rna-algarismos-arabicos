@@ -4,12 +4,13 @@ import torch.nn as nn
 import torch.optim as optim
 from PIL import Image, ImageOps, ImageFilter
 from torchvision import datasets, transforms
+from flask_cors import CORS, cross_origin
 from flask import Flask, request, jsonify, send_file
-import random
-import glob
 import io
-
+import base64
+from PIL import Image
 app = Flask(__name__)
+CORS(app)
 
 # Define the model
 class Net(nn.Module):
@@ -85,18 +86,39 @@ def predict(image):
     _, predicted = torch.max(output.data, 1)
     return predicted.item()
 
+def image2string(image: Image.Image, _format: str = 'PNG') -> str:
+    r""" Convert Pillow image to string. """
+    if _format == 'JPEG':
+        image = image.convert('RGB')
+    img_bytes_arr = io.BytesIO()
+    image.save(img_bytes_arr, format=_format)
+    img_bytes_arr.seek(0)
+    img_bytes_arr = img_bytes_arr.read()
+    img_bytes_arr_encoded = base64.b64encode(img_bytes_arr)
+    res = img_bytes_arr_encoded.decode('utf-8')
+    return res
+
+
+def string2image(string: str) -> Image.Image:
+    r""" Convert string to Pillow image. """
+    img_bytes_arr = string.encode('utf-8')
+    img_bytes_arr_encoded = base64.b64decode(img_bytes_arr)
+    image = Image.open(io.BytesIO(img_bytes_arr_encoded))
+    return image
+@cross_origin(origin='localhost')
 @app.route('/api/predict', methods=['POST'])
 def predict_image():
     if 'image' not in request.files:
         return jsonify({"error": "No image file provided"}), 400
 
     file = request.files['image']
-    image = Image.open(file.stream).convert('L')
-    normalized_image = normalize_image(image)
+    file.save("teste123.png")
+    normalized_image = normalize_image("teste123.png")
     predicted_label = predict(normalized_image)
     
     return jsonify({
-        "predicted_label": predicted_label
+        "predicted_label": predicted_label,
+        "normalized_image": image2string(normalized_image, 'PNG')
     })
 
 @app.route('/api/test_image', methods=['POST'])
