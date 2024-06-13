@@ -50,6 +50,28 @@ const ImageEditor: React.FC = () => {
     )
     reader.readAsDataURL(acceptedFiles[0])
   }, []);
+  function base64ToBlob(dataUrl, sliceSize = 512) {
+    const [prefix, base64] = dataUrl.split(',');
+    const contentType = prefix.split(':')[1].split(';')[0];
+
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  }
 
   // This is to demonstate how to make and center a % aspect crop
   // which is a bit trickier so we use some helper functions.
@@ -163,8 +185,9 @@ const ImageEditor: React.FC = () => {
     else if (mode == "draw") {
       //@ts-ignore
       ref.current.exportImage("png")
-        .then(blob => {
-          mutate({ blob })
+        .then(data => {
+          console.log(data)
+          mutate({ blob: base64ToBlob(data) })
         })
     }
   };

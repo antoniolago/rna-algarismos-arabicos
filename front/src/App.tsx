@@ -14,7 +14,7 @@ function App() {
   const [count, setCount] = useState(0)
   return (
     <>
-      <MaterialCssVarsProvider theme={{ [MATERIAL_THEME_ID]: materialTheme }} defaultMode="dark">
+      <MaterialCssVarsProvider theme={{ [MATERIAL_THEME_ID]: materialTheme }} defaultMode="light">
         <JoyCssVarsProvider>
           <CssBaseline enableColorScheme />
           <ImageEditor />
