@@ -8,6 +8,7 @@ import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy/styles';
 import './App.css'
 import ImageEditor from './ImageEditor'
 import { CssBaseline } from '@mui/joy';
+import { Tema } from './contexts/Tema';
 
 const materialTheme = materialExtendTheme({});
 function App() {
@@ -16,8 +17,10 @@ function App() {
     <>
       <MaterialCssVarsProvider theme={{ [MATERIAL_THEME_ID]: materialTheme }} defaultMode="light">
         <JoyCssVarsProvider>
-          <CssBaseline enableColorScheme />
-          <ImageEditor />
+          <Tema>
+            <ImageEditor />
+
+          </Tema>
         </JoyCssVarsProvider>
       </MaterialCssVarsProvider>
     </>
