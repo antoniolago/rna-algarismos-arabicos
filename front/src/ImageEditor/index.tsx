@@ -268,7 +268,6 @@ const ImageEditor: React.FC = () => {
                     />
                   </ReactCrop>
                 </>
-
               )}
               {mode == "draw" &&
                 <>
@@ -281,6 +280,10 @@ const ImageEditor: React.FC = () => {
                     strokeWidth={4}
                     strokeColor="black"
                   />
+                  <br />
+                  <Button onClick={() => ref?.current?.clearCanvas()}>
+                    Limpar
+                  </Button>
                 </>
               }
             </Box>
