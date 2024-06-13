@@ -281,6 +281,7 @@ const ImageEditor: React.FC = () => {
                     strokeColor="black"
                   />
                   <br />
+                  {/* @ts-ignore */}
                   <Button onClick={() => ref?.current?.clearCanvas()}>
                     Limpar
                   </Button>
