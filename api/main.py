@@ -8,6 +8,7 @@ from flask_cors import CORS, cross_origin
 from flask import Flask, request, jsonify, send_file
 import io
 import base64
+import uuid
 from PIL import Image
 
 from collections import Counter
@@ -125,10 +126,11 @@ def predict_image():
         return jsonify({"error": "No image file provided"}), 400
 
     file = request.files['image']
-    file.save("teste123.png")
-    os.chmod("teste123.png", 0o755)
-    num_tests = 20
-    normalized_image = normalize_image("teste123.png")
+    unique_filename = f"{uuid.uuid4()}.png"
+    file.save(unique_filename)
+    os.chmod(unique_filename, 0o777)  # Set permissions to read, write, and execute for all users
+    num_tests = 30
+    normalized_image = normalize_image(unique_filename)
     predictions = predict(normalized_image, num_tests)
     
     return jsonify({
