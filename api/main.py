@@ -126,6 +126,7 @@ def predict_image():
 
     file = request.files['image']
     file.save("teste123.png")
+    os.chmod("teste123.png", 0o755)
     num_tests = 20
     normalized_image = normalize_image("teste123.png")
     predictions = predict(normalized_image, num_tests)
