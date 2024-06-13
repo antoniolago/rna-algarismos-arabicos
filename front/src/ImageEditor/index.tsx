@@ -330,7 +330,7 @@ const ImageEditor: React.FC = () => {
                 {error && <Typography>Error: {error?.message}</Typography>}
                 {data &&
                   <>
-                    <Typography>Predictions:
+                    <Typography>Predições:
                     </Typography>
 
                     {data?.predicted_label.map((label, index) => (

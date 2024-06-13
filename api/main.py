@@ -94,8 +94,8 @@ def predict(image, num_tests=1):
     count = Counter(predictions)
     total = sum(count.values())
     results = [
-        f"{num}: {count[num]} times ({(count[num] / total) * 100:.2f}%)"
-        for num in range(10) if num in count
+        f"{num} - {count[num]} vezes ({(count[num] / total) * 100:.2f}%)"
+        for num, _ in count.most_common()
     ]
     return results
 
