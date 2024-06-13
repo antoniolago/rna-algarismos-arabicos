@@ -277,7 +277,7 @@ const ImageEditor: React.FC = () => {
                     style={styles}
                     width="200"
                     height="200"
-                    strokeWidth={4}
+                    strokeWidth={15}
                     strokeColor="black"
                   />
                   <br />
