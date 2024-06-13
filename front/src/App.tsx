@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   experimental_extendTheme as materialExtendTheme,
   Experimental_CssVarsProvider as MaterialCssVarsProvider,
@@ -12,7 +12,6 @@ import { CssBaseline } from '@mui/joy';
 const materialTheme = materialExtendTheme({});
 function App() {
   const [count, setCount] = useState(0)
-
   return (
     <>
       <MaterialCssVarsProvider theme={{ [MATERIAL_THEME_ID]: materialTheme }} defaultMode="dark">

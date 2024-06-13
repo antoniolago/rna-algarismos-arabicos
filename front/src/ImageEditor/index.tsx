@@ -10,9 +10,15 @@ import { useDebounceEffect } from './useDebounceEffect.ts';
 import { canvasPreview } from './canvasPreview.ts';
 import { Box, Button, CircularProgress, Grid } from '@mui/joy';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { Typography } from '@mui/material';
+import { ReactSketchCanvas } from 'react-sketch-canvas';
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from '@mui/material';
 const ImageEditor: React.FC = () => {
-
+  const ref = useRef();
+  const styles = {
+    border: '0.0625rem solid #9c9c9c',
+    borderRadius: '0.25rem',
+    width: '200px'
+  };
   const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -27,6 +33,7 @@ const ImageEditor: React.FC = () => {
   const [scale, setScale] = useState(1)
   const [rotate, setRotate] = useState(0)
   const [imageLoading, setImageLoading] = useState(false)
+  const [mode, setMode] = useState<'crop' | 'draw'>('draw')
   const [image, setImage] = useState<File | null>(null);
   const [normalizedImageUrl, setNormalizedImageUrl] = useState<string | null>(null);
   // const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -146,16 +153,19 @@ const ImageEditor: React.FC = () => {
     [completedCrop, scale, rotate],
   )
   const handleUpload = async () => {
-    if (image) {
-      // const croppedImage = await getCroppedImg(image, completedCrop as PixelCrop);
+    if (image && mode == "crop") {
+      const croppedImage = await getCroppedImg(image, completedCrop as PixelCrop);
       var croppedImageCanvas = document.getElementById('cropped-image') as HTMLCanvasElement
       croppedImageCanvas.toBlob((blob) => {
-        // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
-        // console.log(blob)
         mutate({ blob });
       });
-      // const file = new File([blob], 'croppedImage.png', { type: 'image/png' });
-      // // console.log(blob)
+    }
+    else if (mode == "draw") {
+      //@ts-ignore
+      ref.current.exportImage("png")
+        .then(blob => {
+          mutate({ blob })
+        })
     }
   };
 
@@ -168,109 +178,136 @@ const ImageEditor: React.FC = () => {
     }
   }, [data]);
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMode((event.target as HTMLInputElement).value as 'crop' | 'draw');
+  };
   return (
     <Box>
       <Typography variant="h4">RNA identificação de algarismos arábicos</Typography>
       <br />
-      <Dropzone
-        onDrop={onDrop}
-      // accept="image/*"
-      >
-        {({ getRootProps, getInputProps }) => (
-          <Box {...getRootProps()}
-            border={1}
-            padding={2}
-            marginBottom={2}
-            sx={{
-              // background: 'light.green',
-              color: 'inherit',
-              height: '120px'
-            }}
-          >
-            <input {...getInputProps()} />
-            <Typography>Arraste uma imagem ou clique aqui.</Typography>
-            {imageLoading ? <CircularProgress sx={{ mt: 1 }} />
-              :
-              <UploadFileIcon sx={{ height: '50px', width: '50px', mt: 1 }} />
-            }
-          </Box>
-        )}
-      </Dropzone>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Mode</FormLabel>
+        <RadioGroup row aria-label="mode" name="mode" value={mode} onChange={handleChange}>
+          <FormControlLabel value="crop" control={<Radio />} label="Recortar" />
+          <FormControlLabel value="draw" control={<Radio />} label="Desenhar" />
+        </RadioGroup>
+      </FormControl>
+      {mode == "crop" &&
+        <Dropzone
+          onDrop={onDrop}
+        // accept="image/*"
+        >
+          {({ getRootProps, getInputProps }) => (
+            <Box {...getRootProps()}
+              border={1}
+              padding={2}
+              marginBottom={2}
+              sx={{
+                // background: 'light.green',
+                color: 'inherit',
+                height: '120px'
+              }}
+            >
+              <input {...getInputProps()} />
+              <Typography>Arraste uma imagem ou clique aqui.</Typography>
+              {imageLoading ? <CircularProgress sx={{ mt: 1 }} />
+                :
+                <UploadFileIcon sx={{ height: '50px', width: '50px', mt: 1 }} />
+              }
+            </Box>
+          )}
+        </Dropzone>
+      }
+
       <br />
-      {image && (
-        <Box sx={{textAlign: '-webkit-center'}}>
-          <Grid container spacing={5} sx={{ width: '50%', '.MuiGrid-root': { alignContent: 'center' } }}>
-            <Grid md={4}>
-              <Box>
-                {!!imgSrc && (
-                  <>
-                    {/* <Typography>Clique na imagem e selecione seu recorte</Typography> */}
-                    <ReactCrop
-                      crop={crop}
-                      onChange={(_, percentCrop) => setCrop(percentCrop)}
-                      onComplete={(c) => setCompletedCrop(c)}
-                    // aspect={aspect}
-                    // minWidth={400}
-                    // minHeight={100}
-                    // circularCrop
-                    >
-                      <img
-                        ref={imgRef}
-                        alt="Crop me"
-                        src={imgSrc}
-                        style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-                        onLoad={onImageLoad}
-                      />
-                    </ReactCrop>
-                  </>
-
-                )}
-              </Box>
-            </Grid>
-            <Grid md={4}>
-              {!!completedCrop && (
+      <Box sx={{ textAlign: '-webkit-center' }}>
+        <Grid container spacing={5} sx={{ width: '50%', '.MuiGrid-root': { alignContent: 'center' } }}>
+          <Grid md={4}>
+            <Box>
+              {!!imgSrc && mode == "crop" && (
                 <>
-                  <div>
-                    <canvas
-                      ref={previewCanvasRef}
-                      id="cropped-image"
-                      style={{
-                        border: '1px solid black',
-                        objectFit: 'contain',
-                        width: completedCrop.width,
-                        height: completedCrop.height,
-                      }}
+                  {/* <Typography>Clique na imagem e selecione seu recorte</Typography> */}
+                  <ReactCrop
+                    crop={crop}
+                    onChange={(_, percentCrop) => setCrop(percentCrop)}
+                    onComplete={(c) => setCompletedCrop(c)}
+                  // aspect={aspect}
+                  // minWidth={400}
+                  // minHeight={100}
+                  // circularCrop
+                  >
+                    <img
+                      ref={imgRef}
+                      alt="Crop me"
+                      src={imgSrc}
+                      style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+                      onLoad={onImageLoad}
                     />
-                  </div>
+                  </ReactCrop>
                 </>
-              )}
-            </Grid>
-            <Grid md={2}>
 
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={handleUpload} disabled={!image || isPending}>
-                Identificar
-              </Button>
-            </Grid>
-            <Grid md={2}>
-              {data?.normalized_image && (
-                <Box>
-                  <img
-                    src={normalizedImageUrl}
-                    alt="Original"
-                    style={{ maxWidth: '100%' }}
-                  />
-                  {isPending && <Typography>Loading...</Typography>}
-                  {error && <Typography>Error: {error?.message}</Typography>}
-                  {data && <Typography>Prediction: {data?.predicted_label}</Typography>}
-                </Box>
               )}
-            </Grid>
+              {mode == "draw" &&
+                <>
+                  <Typography>Desenhe o número</Typography>
+                  <ReactSketchCanvas
+                    ref={ref}
+                    style={styles}
+                    width="200"
+                    height="200"
+                    strokeWidth={4}
+                    strokeColor="black"
+                  />
+                </>
+              }
+            </Box>
           </Grid>
-        </Box>
-      )}
+          {!!completedCrop && mode == "crop" && (
+            <Grid md={4}>
+              <>
+                <div>
+                  <canvas
+                    ref={previewCanvasRef}
+                    id="cropped-image"
+                    style={{
+                      border: '1px solid black',
+                      objectFit: 'contain',
+                      width: completedCrop.width,
+                      height: completedCrop.height,
+                    }}
+                  />
+                </div>
+              </>
+            </Grid>
+          )}
+          <Grid md={2}>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleUpload}
+            // disabled={!image || isPending}
+            >
+              Identificar
+            </Button>
+          </Grid>
+          <Grid md={2}>
+            {data?.normalized_image && (
+              <Box>
+                <img
+                  src={normalizedImageUrl}
+                  alt="Original"
+                  style={{ maxWidth: '100%' }}
+                />
+                {isPending && <Typography>Loading...</Typography>}
+                {error && <Typography>Error: {error?.message}</Typography>}
+                {data && <Typography>Prediction: {data?.predicted_label}</Typography>}
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+      </Box>
+
       {/* {data?.normalized_image && (
         <Box marginBottom={2}>
           <img src={data?.normalized_image} alt="Cropped" style={{ maxWidth: '100%' }} />
