@@ -133,6 +133,8 @@ def predict_image():
     normalized_image = normalize_image(unique_filename)
     predictions = predict(normalized_image, num_tests)
     
+    # Remove the image file after processing
+    os.remove(unique_filename)
     return jsonify({
         "predicted_label": predictions,
         "normalized_image": image2string(normalized_image, 'PNG')
