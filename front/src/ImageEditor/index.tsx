@@ -318,7 +318,7 @@ const ImageEditor: React.FC = () => {
               Identificar
             </Button>
           </Grid>
-          <Grid md={2}>
+          <Grid md={4}>
             {data?.normalized_image && (
               <Box>
                 <img
@@ -328,7 +328,16 @@ const ImageEditor: React.FC = () => {
                 />
                 {isPending && <Typography>Loading...</Typography>}
                 {error && <Typography>Error: {error?.message}</Typography>}
-                {data && <Typography>Prediction: {data?.predicted_label}</Typography>}
+                {data &&
+                  <>
+                    <Typography>Predictions:
+                    </Typography>
+
+                    {data?.predicted_label.map((label, index) => (
+                      <span key={index}>{label}<br/></span>
+                    ))}
+                  </>
+                }
               </Box>
             )}
           </Grid>

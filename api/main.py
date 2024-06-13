@@ -9,8 +9,10 @@ from flask import Flask, request, jsonify, send_file
 import io
 import base64
 from PIL import Image
+
+from collections import Counter
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins="*")
 
 # Define the model
 class Net(nn.Module):
@@ -75,16 +77,27 @@ def normalize_image(image_path):
     image = image.resize((28, 28))
     return image
 
-def predict(image):
+
+def predict(image, num_tests=1):
     transform = transforms.Compose([
         transforms.Resize((28, 28)),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
     image = transform(image).unsqueeze(0).to(device)
-    output = model(image)
-    _, predicted = torch.max(output.data, 1)
-    return predicted.item()
+    predictions = []
+    for _ in range(num_tests):
+        output = model(image)
+        _, predicted = torch.max(output.data, 1)
+        predictions.extend(predicted.cpu().numpy().tolist())
+    
+    count = Counter(predictions)
+    total = sum(count.values())
+    results = [
+        f"{num}: {count[num]} times ({(count[num] / total) * 100:.2f}%)"
+        for num in range(10) if num in count
+    ]
+    return results
 
 def image2string(image: Image.Image, _format: str = 'PNG') -> str:
     r""" Convert Pillow image to string. """
@@ -105,7 +118,7 @@ def string2image(string: str) -> Image.Image:
     img_bytes_arr_encoded = base64.b64decode(img_bytes_arr)
     image = Image.open(io.BytesIO(img_bytes_arr_encoded))
     return image
-@cross_origin(origin='localhost')
+@cross_origin()
 @app.route('/api/predict', methods=['POST'])
 def predict_image():
     if 'image' not in request.files:
@@ -113,26 +126,13 @@ def predict_image():
 
     file = request.files['image']
     file.save("teste123.png")
+    num_tests = 20
     normalized_image = normalize_image("teste123.png")
-    predicted_label = predict(normalized_image)
+    predictions = predict(normalized_image, num_tests)
     
     return jsonify({
-        "predicted_label": predicted_label,
+        "predicted_label": predictions,
         "normalized_image": image2string(normalized_image, 'PNG')
-    })
-
-@app.route('/api/test_image', methods=['POST'])
-def test_image():
-    if 'image' not in request.files:
-        return jsonify({"error": "No image file provided"}), 400
-
-    file = request.files['image']
-    image = Image.open(file.stream).convert('L')
-    normalized_image = normalize_image(image)
-    predicted_label = predict(normalized_image)
-    
-    return jsonify({
-        "predicted_label": predicted_label
     })
 
 @app.route('/api/normalized_image', methods=['POST'])
